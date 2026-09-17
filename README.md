@@ -37,13 +37,14 @@ sudo useradd -r -m -s /usr/sbin/nologin "$SVC_NAME"
 id "$SVC_NAME"
 getent passwd "$SVC_NAME"
 
-📦 Deliverables
+### 📦 Deliverables
 🔹 Part 1 Deliverable: 01_create_user.sh
 Script File Location: scripts/01_create_user.sh
 
 Requirement: Make the script Idempotent (safe to run twice by checking if the user already exists before attempting creation).
 
-🧪 Idempotency Proof & Execution Output:
+### 🧪 Idempotency Proof & Execution Output:
+```bash
 nobel@DESKTOP-G7VQA63:~/linux-sysadmin-lab$ ./scripts/01_create_user.sh
 Checking if user bgdsvc_nobel exists...
 User bgdsvc_nobel already exists. Skipping creation.
