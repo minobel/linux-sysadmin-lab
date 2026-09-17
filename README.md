@@ -41,12 +41,13 @@ getent passwd "$SVC_NAME"
 
 ### 🔹 Part 1 Deliverable: `01_create_user.sh`
 
-* **Script File Location:** [`scripts/01_create_user.sh`](scripts/01_create_user.sh)
-* **Requirement:** Make the script **Idempotent** (safe to run twice by checking if the user already exists before attempting creation).
+ **Script File Location:** [scripts/01_create_user.sh](scripts/01_create_user.sh)
+
+ **Requirement:** Make the script **Idempotent** (safe to run twice by checking if the user already exists before attempting creation).
 
 #### 🧪 Idempotency Proof & Execution Output
 
-```text
+``text
 nobel@DESKTOP-G7VQA63:~/linux-sysadmin-lab$ ./scripts/01_create_user.sh
 Checking if user bgdsvc_nobel exists...
 User bgdsvc_nobel already exists. Skipping creation.
