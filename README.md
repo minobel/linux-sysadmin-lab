@@ -49,7 +49,7 @@ getent passwd "$SVC_NAME"
 
 ### 🔹 Part 1 Deliverable: `01_create_user.sh`
 
--   **Script File Location:** [scripts/01_create_user.sh](https://www.google.com/search?q=scripts/01_create_user.sh)
+-   **Script File Location:** [scripts/01_create_user.sh](https://github.com/minobel/linux-sysadmin-lab/blob/main/scripts/01_create_user.sh)
     
 -   **Requirement:** Make the script **Idempotent** (safe to run twice by checking if the user already exists before attempting creation).
     
