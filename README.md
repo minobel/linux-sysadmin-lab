@@ -152,7 +152,7 @@ done
 -   **Description:** Automates disk population, CPU stress, memory stress, and combined parallel stress testing using configurable CLI flags (`--disk`, `--cpu`, `--mem`, `--all`).
 
  #### 🧪 System Monitoring Output & Evidence 
- - **[`screenshots/03_free_before.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%203/Bash%20Script%20Output/03_free_before.png)
- - **: Baseline memory state before triggering stress tests. - **[`screenshots/03_free_during.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%203/Bash%20Script%20Output/03_free_during.png)**: Memory and system load during active multi-resource stress execution. 
+ - **[`screenshots/03_free_before.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%203/Bash%20Script%20Output/03_free_before.png)**: Baseline memory state before triggering stress tests. 
+ - **[`screenshots/03_free_during.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%203/Bash%20Script%20Output/03_free_during.png)**: Memory and system load during active multi-resource stress execution. 
  - **[`screenshots/03_free_after.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%203/Bash%20Script%20Output/03_free_after.png)**: Post-execution memory usage showing resource recovery. 
  - **[`screenshots/03_dmesg_oom.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%203/Bash%20Script%20Output/03_dmesg_oom.png)**: Kernel audit using `dmesg | grep -i oom` confirming no unhandled Out-Of-Memory process kills occurred during the tests.
