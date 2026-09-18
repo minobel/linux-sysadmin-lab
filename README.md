@@ -96,7 +96,7 @@ df -h "/mnt/${SVC_NAME}_tmp"
 
 ### 🔹 Part 2 Deliverable: `02_setup_tmpfs.sh`
 
--   **Script File Location:** [scripts/02_setup_tmpfs.sh](https://www.google.com/search?q=./scripts/02_setup_tmpfs.sh&utm_source=gemini)
+-   **Script File Location:** [scripts/02_setup_tmpfs.sh](https://github.com/minobel/linux-sysadmin-lab/blob/main/scripts/02_setup_tmpfs.sh)
     
 -   **Requirement:** Idempotent provisioning of RAM-backed scratch space with a strict `256M` size cap and ownership assignment to `$SVC_NAME`.
     
