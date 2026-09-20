@@ -158,7 +158,8 @@ done
  - **[`screenshots/03_dmesg_oom.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%203/Bash%20Script%20Output/03_dmesg_oom.png)**: Kernel audit using `dmesg | grep -i oom` confirming no unhandled Out-Of-Memory process kills occurred during the tests.
 
 ```
-## 🔑 Part 4 — Give It a Front Door (SSH Public Key Authentication)
+```
+### 🔑 Part 4 — Give It a Front Door (SSH Public Key Authentication)
 
 ### 📌 Overview & Concept
 In this section, secure remote administration access was set up for the service user (`bgdsvc_mahdi`). Password-based logins are inherently insecure for automated service accounts, so we implemented **Ed25519 Public Key Cryptography**.
