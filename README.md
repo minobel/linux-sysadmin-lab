@@ -156,3 +156,44 @@ done
  - **[`screenshots/03_free_during.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%203/Bash%20Script%20Output/03_free_during.png)**: Memory and system load during active multi-resource stress execution. 
  - **[`screenshots/03_free_after.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%203/Bash%20Script%20Output/03_free_after.png)**: Post-execution memory usage showing resource recovery. 
  - **[`screenshots/03_dmesg_oom.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%203/Bash%20Script%20Output/03_dmesg_oom.png)**: Kernel audit using `dmesg | grep -i oom` confirming no unhandled Out-Of-Memory process kills occurred during the tests.
+
+ ```
+ 
+## 🔑 Part 4 — Give It a Front Door (SSH Public Key Authentication)
+
+### 📌 Overview & Concept
+In this section, secure remote administration access was set up for the service user (`bgdsvc_mahdi`). Password-based logins are inherently insecure for automated service accounts, so we implemented **Ed25519 Public Key Cryptography**.
+
+Key security constraints enforced:
+1. **Public/Private Key Handshake:** Authentication is granted solely via matched Ed25519 key pairs.
+2. **POSIX Permission Hardening:** OpenSSH strictly rejects keys with loose permissions.
+   - `.ssh` directory: `700` (`rwx------`)
+   - `authorized_keys` file: `600` (`rw-------`)
+3. **Restricted Shell Policy:** Since `bgdsvc_mahdi` is a non-interactive service account (assigned `/usr/sbin/nologin`), SSH successfully authenticates the key and immediately terminates the interactive terminal session, maintaining zero-trust system integrity.
+
+---
+
+### 💻 Command-by-Command Execution History
+
+#### 1. OpenSSH Server Verification & Service Activation
+Ensure OpenSSH server binaries are present and active on the host:
+```bash
+sudo apt update && sudo apt install openssh-server -y
+sudo systemctl enable --now ssh
+systemctl status ssh sshd 2>/dev/null
+2. Ed25519 SSH Key Pair GenerationGenerate a high-security Ed25519 key pair dedicated to the service account:   Bashssh-keygen -t ed25519 -f ~/.ssh/${SVC_NAME}_key
+Private Key: ~/.ssh/bgdsvc_mahdi_key (Kept secret on client machine)[cite: 3]Public Key: ~/.ssh/bgdsvc_mahdi_key.pub (Deployed to server)[cite: 3]3. Provisioning Authorized Keys & PermissionsDeploy the public key to the target user's home directory and enforce strict file ownership and POSIX mode bits[cite: 3]:Bash# Create target SSH directory
+sudo mkdir -p "/home/$SVC_NAME/.ssh"
+
+# Deploy public key into authorized_keys
+sudo cp ~/.ssh/${SVC_NAME}_key.pub "/home/$SVC_NAME/.ssh/authorized_keys"
+
+# Set proper user and group ownership
+sudo chown -R "$SVC_NAME:$SVC_NAME" "/home/$SVC_NAME/.ssh"
+
+# Apply strict POSIX permissions
+sudo chmod 700 "/home/$SVC_NAME/.ssh"
+sudo chmod 600 "/home/$SVC_NAME/.ssh/authorized_keys"
+4. Authentication VerificationTest the SSH handshake via identity flag -i[cite: 3]:Bashssh -i ~/.ssh/bgdsvc_mahdi_key bgdsvc_mahdi@localhost
+📦 Deliverables & Verification EvidenceAutomation Script: scripts/04_setup_ssh.shExecution Evidence:screenshots/04_ssh_key_connect.png: Confirms successful passwordless authentication handshake, followed by shell isolation enforcement (This account is currently not available.)[cite: 3].screenshots/04_systemctl_status.png: Demonstrates active sshd daemon status with journald system logs confirming Accepted publickey for bgdsvc_mahdi[cite: 3].
+```
