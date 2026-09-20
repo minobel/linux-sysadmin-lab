@@ -159,6 +159,8 @@ done
 
  ```
  
+```
+
 ## 🔑 Part 4 — Give It a Front Door (SSH Public Key Authentication)
 
 ### 📌 Overview & Concept
@@ -181,8 +183,33 @@ Ensure OpenSSH server binaries are present and active on the host:
 sudo apt update && sudo apt install openssh-server -y
 sudo systemctl enable --now ssh
 systemctl status ssh sshd 2>/dev/null
-2. Ed25519 SSH Key Pair GenerationGenerate a high-security Ed25519 key pair dedicated to the service account:   Bashssh-keygen -t ed25519 -f ~/.ssh/${SVC_NAME}_key
-Private Key: ~/.ssh/bgdsvc_mahdi_key (Kept secret on client machine)[cite: 3]Public Key: ~/.ssh/bgdsvc_mahdi_key.pub (Deployed to server)[cite: 3]3. Provisioning Authorized Keys & PermissionsDeploy the public key to the target user's home directory and enforce strict file ownership and POSIX mode bits[cite: 3]:Bash# Create target SSH directory
+
+```
+
+#### 2. Ed25519 SSH Key Pair Generation
+
+Generate a high-security Ed25519 key pair dedicated to the service account:
+
+Bash
+
+```
+ssh-keygen -t ed25519 -f ~/.ssh/${SVC_NAME}_key
+
+```
+
+-   **Private Key:** `~/.ssh/bgdsvc_mahdi_key` (Kept secret on client machine)[cite: 3]
+    
+-   **Public Key:** `~/.ssh/bgdsvc_mahdi_key.pub` (Deployed to server)[cite: 3]
+    
+
+#### 3. Provisioning Authorized Keys & Permissions
+
+Deploy the public key to the target user's home directory and enforce strict file ownership and POSIX mode bits[cite: 3]:
+
+Bash
+
+```
+# Create target SSH directory
 sudo mkdir -p "/home/$SVC_NAME/.ssh"
 
 # Deploy public key into authorized_keys
@@ -194,6 +221,26 @@ sudo chown -R "$SVC_NAME:$SVC_NAME" "/home/$SVC_NAME/.ssh"
 # Apply strict POSIX permissions
 sudo chmod 700 "/home/$SVC_NAME/.ssh"
 sudo chmod 600 "/home/$SVC_NAME/.ssh/authorized_keys"
-4. Authentication VerificationTest the SSH handshake via identity flag -i[cite: 3]:Bashssh -i ~/.ssh/bgdsvc_mahdi_key bgdsvc_mahdi@localhost
-📦 Deliverables & Verification EvidenceAutomation Script: scripts/04_setup_ssh.shExecution Evidence:screenshots/04_ssh_key_connect.png: Confirms successful passwordless authentication handshake, followed by shell isolation enforcement (This account is currently not available.)[cite: 3].screenshots/04_systemctl_status.png: Demonstrates active sshd daemon status with journald system logs confirming Accepted publickey for bgdsvc_mahdi[cite: 3].
+
 ```
+
+#### 4. Authentication Verification
+
+Test the SSH handshake via identity flag `-i`[cite: 3]:
+
+Bash
+
+```
+ssh -i ~/.ssh/bgdsvc_mahdi_key bgdsvc_mahdi@localhost
+
+```
+
+### 📦 Deliverables & Verification Evidence
+
+-   **Automation Script:** [`scripts/04_setup_ssh.sh`](https://www.google.com/search?q=./scripts/04_setup_ssh.sh&utm_source=gemini)
+    
+-   **Execution Evidence:**
+    
+    -   **[`screenshots/04_ssh_key_connect.png`](https://www.google.com/search?q=./screenshots/04_ssh_key_connect.png&utm_source=gemini):** Confirms successful passwordless authentication handshake, followed by shell isolation enforcement (`This account is currently not available.`)[cite: 3].
+        
+    -   **[`screenshots/04_systemctl_status.png`](https://www.google.com/search?q=./screenshots/04_systemctl_status.png&utm_source=gemini):** Demonstrates active `sshd` daemon status with journald system logs confirming `Accepted publickey for bgdsvc_mahdi`[cite: 3].
