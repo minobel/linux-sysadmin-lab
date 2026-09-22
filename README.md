@@ -472,7 +472,7 @@ The primary objective of Part 8 is to perform a controlled, idempotent teardown 
 ### 📦 Deliverables & Verification Evidence
 
 * 📜 **Teardown Deliverable Script:** [`scripts/04_cleanup.sh`](https://github.com/minobel/linux-sysadmin-lab/blob/main/scripts/04_cleanup.sh) — Fully automated, idempotent system teardown script.
-* 📸 **Execution & Audit Evidence:** [`screenshots/08_cleanup_verification.png`]() — Terminal evidence confirming full resource clearance.
+* 📸 **Execution & Audit Evidence:** [`screenshots/08_cleanup_verification.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/08_cleanup_verification.png) — Terminal evidence confirming full resource clearance.
 
 
 
