@@ -291,6 +291,7 @@ ssh -i ~/.ssh/bgdsvc_mahdi_key -p 2222 bgdsvc_mahdi@localhost
     -   **[`screenshots/05_systemctl_status_port2222.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%205/05.systemctl_status_port2222.png):** Demonstrates active `sshd` service bound specifically to Port 2222..
 
 ```
+---
 ### ⏰ Part 6 — Teach the System to Watch Itself (Cron)
 
 ### 📌 Overview & System Automation
@@ -354,9 +355,9 @@ Code snippet
 
 -   **Execution Evidence:**
     
-    -   **[`screenshots/06_crontab_list.png`](https://www.google.com/search?q=./screenshots/06_crontab_list.png&utm_source=gemini):** Displays active cron schedule operating under `bgdsvc_mahdi`.
+    -   **[`screenshots/06_crontab_list.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%206/06_crontab_list.png):** Displays active cron schedule operating under `bgdsvc_mahdi`.
         
-    -   **[`screenshots/06_monitor_log.png`](https://www.google.com/search?q=./screenshots/06_monitor_log.png&utm_source=gemini):** Confirms cron-driven automated health logs capturing memory, storage, and running process status.
+    -   **[`screenshots/06_monitor_log.png`](https://github.com/minobel/linux-sysadmin-lab/tree/main/screenshots/Part%206/Log-Monitor):** Confirms cron-driven automated health logs capturing memory, storage, and running process status.
 
 
 
