@@ -424,7 +424,7 @@ ls -lh /var/log/bgdsvc_mahdi/
 
 -   **Execution Evidence:**
     
-    -   **[`screenshots/07_logrotate_verification.png`](https://www.google.com/search?q=./screenshots/07_logrotate_verification.png&utm_source=gemini):** Confirms successful log rotation, demonstrating the creation of the compressed archive `monitor.log.1.gz` alongside a newly instantiated, zero-byte `monitor.log` file with `0640` permissions assigned to `bgdsvc_mahdi:bgdsvc_mahdi`.
+    -   **[`screenshots/07_logrotate_verification.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/07_logrotate_verification.png):** Confirms successful log rotation, demonstrating the creation of the compressed archive `monitor.log.1.gz` alongside a newly instantiated, zero-byte `monitor.log` file with `0640` permissions assigned to `bgdsvc_mahdi:bgdsvc_mahdi`.
 
 
 
