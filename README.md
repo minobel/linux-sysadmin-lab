@@ -290,5 +290,74 @@ ssh -i ~/.ssh/bgdsvc_mahdi_key -p 2222 bgdsvc_mahdi@localhost
         
     -   **[`screenshots/05_systemctl_status_port2222.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%205/05.systemctl_status_port2222.png):** Demonstrates active `sshd` service bound specifically to Port 2222..
 
+```
+### ⏰ Part 6 — Teach the System to Watch Itself (Cron)
+
+### 📌 Overview & System Automation
+In this section, automated reporting and maintenance tasks were configured using scheduled `cron` jobs under the isolated service user (`bgdsvc_mahdi`):
+1. **Health Monitoring (`bgdsvc_mahdi_monitor.sh`):** Runs every 5 minutes (`*/5 * * * *`) to append system memory (`free -h`), scratch directory storage usage (`df -h`), and running processes (`ps -u`) to `/var/log/bgdsvc_mahdi/monitor.log`.
+2. **Nightly File Cleanup (`bgdsvc_mahdi_cleanup_old_files.sh`):** Executes daily at 2:00 AM (`0 2 * * *`) to delete test files older than 24 hours from `/mnt/bgdsvc_mahdi_tmp/`, keeping disk space clear.
+
+---
+
+### 💻 Command & Script Execution History
+
+#### 1. Directory Provisioning & Permissions
+```bash
+sudo mkdir -p /var/log/bgdsvc_mahdi
+sudo chown -R bgdsvc_mahdi:bgdsvc_mahdi /var/log/bgdsvc_mahdi
+sudo chmod 755 /var/log/bgdsvc_mahdi
+
+```
+
+#### 2. System Monitoring Script (`/usr/local/bin/bgdsvc_mahdi_monitor.sh`)
+
+Bash
+
+```
+#!/bin/bash
+SVC_NAME="bgdsvc_mahdi"
+LOGFILE="/var/log/${SVC_NAME}/monitor.log"
+echo "--- $(date) ---" >> "$LOGFILE"
+free -h >> "$LOGFILE"
+df -h "/mnt/${SVC_NAME}_tmp" >> "$LOGFILE" 2>&1
+ps -u "$SVC_NAME" >> "$LOGFILE" 2>&1
+
+```
+
+#### 3. Cleanup Script (`/usr/local/bin/bgdsvc_mahdi_cleanup_old_files.sh`)
+
+Bash
+
+```
+#!/bin/bash
+SVC_NAME="bgdsvc_mahdi"
+TMPDIR="/mnt/${SVC_NAME}_tmp"
+LOGFILE="/var/log/${SVC_NAME}/monitor.log"
+
+find "$TMPDIR" -type f -mtime +1 -delete
+echo "$(date): cleanup run - removed files older than 1 day from $TMPDIR" >> "$LOGFILE"
+
+```
+
+#### 4. Active Crontab Schedule (`sudo crontab -u bgdsvc_mahdi -l`)
+
+Code snippet
+
+```
+*/5 * * * * /usr/local/bin/bgdsvc_mahdi_monitor.sh
+0 2 * * * /usr/local/bin/bgdsvc_mahdi_cleanup_old_files.sh
+
+```
+
+### 📦 Deliverables & Verification Evidence
+
+-   **Execution Evidence:**
+    
+    -   **[`screenshots/06_crontab_list.png`](https://www.google.com/search?q=./screenshots/06_crontab_list.png&utm_source=gemini):** Displays active cron schedule operating under `bgdsvc_mahdi`.
+        
+    -   **[`screenshots/06_monitor_log.png`](https://www.google.com/search?q=./screenshots/06_monitor_log.png&utm_source=gemini):** Confirms cron-driven automated health logs capturing memory, storage, and running process status.
+
+
 
 
