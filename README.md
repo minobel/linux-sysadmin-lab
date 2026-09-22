@@ -289,8 +289,7 @@ ssh -i ~/.ssh/bgdsvc_mahdi_key -p 2222 bgdsvc_mahdi@localhost
     -   **[`screenshots/05_ssh_port_2222_login.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%205/05.ssh_port_2222_login.png):** Confirms successful SSH handshake on hardened Port 2222, followed by immediate shell execution termination (`This account is currently not available.`).
         
     -   **[`screenshots/05_systemctl_status_port2222.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%205/05.systemctl_status_port2222.png):** Demonstrates active `sshd` service bound specifically to Port 2222..
-
-```
+    ```
 ---
 ### ⏰ Part 6 — Teach the System to Watch Itself (Cron)
 
