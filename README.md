@@ -427,109 +427,53 @@ ls -lh /var/log/bgdsvc_mahdi/
     -   **[`screenshots/07_logrotate_verification.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/07_logrotate_verification.png):** Confirms successful log rotation, demonstrating the creation of the compressed archive `monitor.log.1.gz` alongside a newly instantiated, zero-byte `monitor.log` file with `0640` permissions assigned to `bgdsvc_mahdi:bgdsvc_mahdi`.
     ```
 
-
 ---
+
 ## 🧹 Part 8 — The Test Is Over. Leave No Trace. (Cleanup)
 
-### 🎯 Objective & Architectural Overview (What We Did & Why)
+### 🎯 Objective & Architectural Overview
 
-The fundamental goal of Part 8 is to perform a complete, controlled, and idempotent teardown of all system resources provisioned throughout Parts 1–7. In production environments, temporary workloads, stress tests, and isolated service accounts must leave zero residual footprints upon decommissioning to maintain system integrity and prevent resource leaking.
+The primary objective of Part 8 is to perform a controlled, idempotent teardown of all system resources provisioned throughout Parts 1–7. Decommissioning isolated workloads in production environments requires leaving zero residual footprints to ensure system integrity and prevent resource leaking.
 
-#### Why Order Matters: Reverse Execution Dependency
-Teardown must follow the **exact reverse order** of the initial build sequence (`Build: User ➔ Storage ➔ Load ➔ Access ➔ Automation`; `Teardown: Processes ➔ Automation ➔ Storage ➔ Logs ➔ Identity`):
-1. **Killing Running Processes:** The Linux kernel prohibits deleting active user accounts while active processes are bound to their UID. Active background tasks will also lock mounted filesystems.
-2. **Purging Automation (Cron & Logrotate):** Active cron jobs or log rotation schedules will recreate deleted log directories and trigger permission errors if left running after user removal.
-3. **Unmounting Storage Workspaces:** A mounted filesystem or directory cannot be unmounted if active processes hold open file descriptors within that mount point.
-4. **Purging Log Files:** Removes persistent diagnostics and system metrics logged during system testing.
-5. **Deleting User Identity:** Deleting the service user and home directory removes all SSH key pairs and system boundaries established in earlier steps.
+> **Why Order Matters: Reverse Execution Dependency**
+> Teardown follows the exact **reverse order** of the initial build sequence:
+> `Processes` ➔ `Automation` ➔ `Storage` ➔ `Logs` ➔ `Identity`
 
----
-
-### 💡 Detailed Operations Breakdown
-
-| Step | Executed Command / Action | Technical Purpose & System Impact |
-| :--- | :--- | :--- |
-| **1. Kill Processes** | `sudo pkill -u "bgdsvc_mahdi"` | Forces immediate termination of all active background jobs running under UID `bgdsvc_mahdi`, freeing file handles and process table locks. |
-| **2. Remove Automation** | `sudo crontab -r -u "bgdsvc_mahdi"`<br>`sudo rm -f /etc/logrotate.d/bgdsvc_mahdi`<br>`sudo rm -f /usr/local/bin/bgdsvc_mahdi_*` | Wipes active crontabs, purges custom logrotate policies, and deletes monitoring scripts (`monitor.sh` & `cleanup_old_files.sh`) from system paths. |
-| **3. Clean Storage** | `sudo umount /mnt/bgdsvc_mahdi_tmp`<br>`sudo rm -rf /mnt/bgdsvc_mahdi_tmp` | Unmounts temporary workspaces and recursively removes the mount directory. |
-| **4. Purge Logs** | `sudo rm -rf /var/log/bgdsvc_mahdi` | Cleans up the log tracking directory and all generated archives (`.log` and `.gz`). |
-| **5. Delete User Identity** | `sudo userdel -r "bgdsvc_mahdi"` | Deletes the service user, associated group, home directory (`/home/bgdsvc_mahdi`), and SSH authorization keys. |
+* **Killing Active Processes:** Linux prevents account deletion while processes remain bound to the UID. Running processes also lock mounted filesystems.
+* **Purging Automation:** Removing cron jobs and logrotate policies prevents scheduled tasks from recreating deleted log directories.
+* **Unmounting Storage:** Storage cannot be unmounted while open file descriptors exist within the mount point.
+* **Purging Logs:** Clears diagnostic artifacts generated during execution.
+* **Deleting Identity:** Removes user boundaries, home directory files, and authorization keys.
 
 ---
 
-### 💻 Automated Idempotent Teardown Script (`scripts/04_cleanup.sh`)
+### 💡 Execution Steps & Command Reference
 
-To ensure repeatability, the teardown workflow was automated into a fully idempotent Bash script that executes cleanly regardless of whether system components were partially removed prior:
+| Sequence | Action Target | Executed Commands | Technical Purpose |
+| :--- | :--- | :--- | :--- |
+| **Step 1** | **Processes** | `sudo pkill -u "bgdsvc_mahdi"` | Terminates active background jobs under the service UID, releasing file handles. |
+| **Step 2** | **Automation** | `sudo crontab -r -u "bgdsvc_mahdi"`<br>`sudo rm -f /etc/logrotate.d/bgdsvc_mahdi`<br>`sudo rm -f /usr/local/bin/bgdsvc_mahdi_*` | Wipes cron schedules, custom logrotate rules, and executable binaries from system paths. |
+| **Step 3** | **Storage** | `sudo umount /mnt/bgdsvc_mahdi_tmp`<br>`sudo rm -rf /mnt/bgdsvc_mahdi_tmp` | Unmounts scratch space filesystems and recursively deletes directory structures. |
+| **Step 4** | **Logs** | `sudo rm -rf /var/log/bgdsvc_mahdi` | Cleans up system log tracking directories and `.gz` archives. |
+| **Step 5** | **Identity** | `sudo userdel -r "bgdsvc_mahdi"` | Purges user account, primary group, home directory (`/home/bgdsvc_mahdi`), and SSH keys. |
 
-```bash
-#!/bin/bash
-# ============================================================
-# Part 8: System Cleanup Script (Idempotent Teardown)
-# Description: Safely deletes all created resources in reverse order
-# ============================================================
-
-SVC_NAME="bgdsvc_mahdi"
-
-echo "Starting system cleanup..."
-
-# Step 1: Stop any running processes for this user
-echo "1. Stopping active processes..."
-sudo pkill -u "$SVC_NAME" 2>/dev/null || true
-
-# Step 2: Remove cron automation, logrotate rule, and custom scripts
-echo "2. Removing cron jobs, logrotate configs, and scripts..."
-sudo crontab -r -u "$SVC_NAME" 2>/dev/null || true
-sudo rm -f "/etc/logrotate.d/${SVC_NAME}"
-sudo rm -f "/usr/local/bin/${SVC_NAME}_monitor.sh"
-sudo rm -f "/usr/local/bin/${SVC_NAME}_cleanup_old_files.sh"
-
-# Step 3: Unmount and delete temporary storage directory
-echo "3. Cleaning up storage directory..."
-if mount | grep -q "/mnt/${SVC_NAME}_tmp"; then
-    sudo umount "/mnt/${SVC_NAME}_tmp" 2>/dev/null || true
-fi
-sudo rm -rf "/mnt/${SVC_NAME}_tmp"
-
-# Step 4: Remove log directory
-echo "4. Removing log directory..."
-sudo rm -rf "/var/log/${SVC_NAME}"
-
-# Step 5: Delete the service user account and home directory
-echo "5. Deleting service user..."
-sudo userdel -r "$SVC_NAME" 2>/dev/null || true
-
-echo "Cleanup complete! System restored to original state."
-
-```
+---
 
 ### 🔍 Verification & Crime Scene Audit
 
-Post-cleanup audits verify that no residual resources remain:
+| Audit Target | Command Executed | Observed Output | System State Result |
+| :--- | :--- | :--- | :--- |
+| **User Identity** | `id bgdsvc_mahdi` | `id: 'bgdsvc_mahdi': no such user` | User account, UID mapping, and home directory fully purged. |
+| **Mount Points** | `mount \| grep "bgdsvc_mahdi"` | *(Empty)* | Zero lingering temporary mounts or locked storage descriptors. |
+| **Process Table** | `ps -u bgdsvc_mahdi` | `error: user name does not exist` | No orphaned processes, background tasks, or active subshells remain. |
 
-1.  **Identity Verification (`id bgdsvc_mahdi`):**
-    
-    -   **Output:** `id: 'bgdsvc_mahdi': no such user`
-        
-    -   **Verification:** Confirms complete removal of the user account and UID mapping.
-        
-2.  **Mount Point Audit (`mount | grep "bgdsvc_mahdi"`):**
-    
-    -   **Output:** _(Empty)_
-        
-    -   **Verification:** Confirms zero lingering filesystem mounts or occupied storage descriptors.
-        
-3.  **Process Audit (`ps -u bgdsvc_mahdi`):**
-    
-    -   **Output:** `error: user name does not exist`
-        
-    -   **Verification:** Confirms no background processes or orphaned daemons remain active.
-        
+---
 
 ### 📦 Deliverables & Verification Evidence
 
--   **Teardown Deliverable Script:** [`scripts/04_cleanup.sh`](https://www.google.com/search?q=./scripts/04_cleanup.sh&utm_source=gemini) — Fully automated, idempotent system cleanup script.
-    
--   **Execution & Audit Evidence:** [`screenshots/08_cleanup_verification.png`](https://www.google.com/search?q=./screenshots/08_cleanup_verification.png&utm_source=gemini) — Terminal transcript confirming zero residual processes, mounts, or user accounts.
+* 📜 **Teardown Deliverable Script:** [`scripts/04_cleanup.sh`](https://github.com/minobel/linux-sysadmin-lab/blob/main/scripts/04_cleanup.sh) — Fully automated, idempotent system teardown script.
+* 📸 **Execution & Audit Evidence:** [`screenshots/08_cleanup_verification.png`]() — Terminal evidence confirming full resource clearance.
+
 
 
 
