@@ -237,6 +237,58 @@ ssh -i ~/.ssh/bgdsvc_mahdi_key bgdsvc_mahdi@localhost
 * **Execution Evidence:**
   - **[`screenshots/04_ssh_key_connect.png`](./screenshots/04_ssh_key_connect.png):** Confirms successful passwordless authentication handshake, followed by shell isolation enforcement (`This account is currently not available.`).
   - **[`screenshots/04_systemctl_status.png`](./screenshots/04_systemctl_status.png):** Demonstrates active `sshd` daemon status with journald system logs confirming `Accepted publickey for bgdsvc_mahdi`.
+  ```
+  
+---
+## 🔒 Part 5 — Lock the Door Properly (SSH Hardening)
+
+### 📌 Overview & Hardening Constraints
+In this phase, we implemented production-grade OpenSSH security hardening on the server to prevent common attack vectors:
+1. **Port Migration (`Port 2222`):** Changed the default listening port from 22 to 2222 to eliminate automated bot scans.
+2. **Disabling Password Authentication (`PasswordAuthentication no`):** Completely removed password-based login to enforce strict key-pair isolation.
+3. **Disabling Direct Root Access (`PermitRootLogin no`):** Prevents administrative logins via root; privileges must be escalated through dedicated user accounts.
+4. **Restricted Access Control (`AllowUsers`):** Strictly restricted SSH access to authorized accounts (`bgdsvc_mahdi` and system admin `nobel`).
+
+---
+
+### ⚠️ Technical Root Cause Analysis: `ssh.socket` Conflict
+During initial testing, connecting via `-p 2222` resulted in `Connection refused` despite updating `/etc/ssh/sshd_config`. 
+
+* **Root Cause:** Modern Ubuntu releases utilize `ssh.socket` for systemd socket activation, which overrides `sshd_config` port directives and strictly binds to Port 22.
+* **Resolution:** Disabled `ssh.socket` and enabled `ssh.service` directly to allow `sshd` daemon to listen on custom Port 2222.
+
+---
+
+### 💻 Command Execution History
+
+```bash
+# 1. Edit SSH configuration file
+sudo nano /etc/ssh/sshd_config
+
+# Configured lines:
+# Port 2222
+# PermitRootLogin no
+# PasswordAuthentication no
+# AllowUsers bgdsvc_mahdi nobel
+
+# 2. Resolve systemd socket activation conflict & enable direct service
+sudo systemctl stop ssh.socket
+sudo systemctl disable ssh.socket
+sudo systemctl enable --now ssh.service
+sudo systemctl restart ssh
+
+# 3. Test hardened SSH connection on Port 2222
+ssh -i ~/.ssh/bgdsvc_mahdi_key -p 2222 bgdsvc_mahdi@localhost
+
+```
+
+### 📦 Deliverables & Verification Evidence
+
+-   **Execution Evidence:**
+    
+    -   **[`screenshots/05_ssh_port_2222_login.png`](https://www.google.com/search?q=./screenshots/05_ssh_port_2222_login.png&utm_source=gemini):** Confirms successful SSH handshake on hardened Port 2222, followed by immediate shell execution termination (`This account is currently not available.`).
+        
+    -   **[`screenshots/05_systemctl_status_port2222.png`](https://www.google.com/search?q=./screenshots/05_systemctl_status_port2222.png&utm_source=gemini):** Demonstrates active `sshd` service bound specifically to Port 2222..
 
 
 
