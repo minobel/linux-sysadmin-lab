@@ -357,6 +357,74 @@ Code snippet
     -   **[`screenshots/06_crontab_list.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%206/06_crontab_list.png):** Displays active cron schedule operating under `bgdsvc_mahdi`.
         
     -   **[`screenshots/06_monitor_log.png`](https://github.com/minobel/linux-sysadmin-lab/tree/main/screenshots/Part%206/Log-Monitor):** Confirms cron-driven automated health logs capturing memory, storage, and running process status.
+    ```
+
+---
+## 🔄 Part 7 — Don't Let the Logs Eat the Disk (Logrotate)
+
+### 🎯 Objective & Core Purpose
+In a production-grade Linux environment, continuous monitoring services, debug tasks, and system activities generate ongoing log entries. Left unmanaged, these log files grow indefinitely and will eventually exhaust the server's available storage space (`Disk Full`). A full disk condition can crash services, cause database corruption, or lead to complete system downtime just as severely as a critical memory leak.
+
+**Key Objectives of Part 7:**
+* **Automated Log Rotation:** Establish an automated policy to archive active logs based on time intervals or file size limits.
+* **Storage Space Optimization:** Automatically compress older log files (`.gz`) to conserve disk space.
+* **Retention Policy Management:** Maintain a strict retention window (e.g., keeping only 5 historical rotations) and automatically purge stale logs.
+* **Security & Ownership Preservation:** Ensure newly instantiated log files inherit exact ownership (`bgdsvc_mahdi:bgdsvc_mahdi`) and restricted permissions (`0640`).
+
+---
+
+### 💡 Key Technical Learnings
+Implementing this module provided hands-on experience with production log lifecycle management:
+* **Custom Logrotate Configurations:** Learned how to create and manage application-specific rotation rules inside the `/etc/logrotate.d/` directory.
+* **Directive Functionality & Tuning:**
+  * `daily`: Runs rotation checks on a daily schedule.
+  * `rotate 5`: Retains up to 5 rotated backup archives before deleting the oldest entry.
+  * `compress`: Compresses rotated log files using `gzip` to minimize disk footprint.
+  * `size 10M`: Triggers immediate rotation if a log file reaches 10 Megabytes, regardless of the daily schedule.
+  * `missingok`: Prevents error generation if a target log file is missing.
+  * `notifempty`: Skips rotation if the log file contains zero data.
+  * `create 0640 bgdsvc_mahdi bgdsvc_mahdi`: Recreates a fresh, empty active log file with exact `0640` permissions and service user ownership after rotation.
+* **Testing & Manual Execution (`-f` flag):** Learned how to use `sudo logrotate -f` to force immediate policy execution and verify system behavior without waiting for scheduled cron triggers.
+
+---
+
+### 💻 Configuration & Verification Commands
+
+#### 1. Logrotate Rule (`/etc/logrotate.d/bgdsvc_mahdi`)
+```text
+/var/log/bgdsvc_mahdi/*.log {
+    daily
+    rotate 5
+    compress
+    missingok
+    notifempty
+    size 10M
+    create 0640 bgdsvc_mahdi bgdsvc_mahdi
+}
+
+```
+
+#### 2. Execution & Verification Commands
+
+Bash
+
+```
+# Apply proper permissions to the logrotate configuration
+sudo chmod 644 /etc/logrotate.d/bgdsvc_mahdi
+
+# Force manual execution of the logrotate rule
+sudo logrotate -f /etc/logrotate.d/bgdsvc_mahdi
+
+# Verify generated compressed archives and newly created active log file
+ls -lh /var/log/bgdsvc_mahdi/
+
+```
+
+### 📦 Deliverables & Verification Evidence
+
+-   **Execution Evidence:**
+    
+    -   **[`screenshots/07_logrotate_verification.png`](https://www.google.com/search?q=./screenshots/07_logrotate_verification.png&utm_source=gemini):** Confirms successful log rotation, demonstrating the creation of the compressed archive `monitor.log.1.gz` alongside a newly instantiated, zero-byte `monitor.log` file with `0640` permissions assigned to `bgdsvc_mahdi:bgdsvc_mahdi`.
 
 
 
