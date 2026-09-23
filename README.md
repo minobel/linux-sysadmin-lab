@@ -356,7 +356,7 @@ Code snippet
     -   **[`screenshots/06_crontab_list.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%206/06_crontab_list.png):** Displays active cron schedule operating under `bgdsvc_mahdi`.
         
     -   **[`screenshots/06_monitor_log.png`](https://github.com/minobel/linux-sysadmin-lab/tree/main/screenshots/Part%206/Log-Monitor):** Confirms cron-driven automated health logs capturing memory, storage, and running process status.
-  ```
+    ```
 ---
 ## 🔄 Part 7 — Don't Let the Logs Eat the Disk (Logrotate)
 
