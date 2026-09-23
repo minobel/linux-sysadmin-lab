@@ -233,10 +233,9 @@ ssh -i ~/.ssh/bgdsvc_mahdi_key bgdsvc_mahdi@localhost
 
 ```
 ### 📦 Deliverables & Verification Evidence
-* **Automation Script:** [`scripts/04_setup_ssh.sh`](./scripts/04_setup_ssh.sh)
 * **Execution Evidence:**
-  - **[`screenshots/04_ssh_key_connect.png`](./screenshots/04_ssh_key_connect.png):** Confirms successful passwordless authentication handshake, followed by shell isolation enforcement (`This account is currently not available.`).
-  - **[`screenshots/04_systemctl_status.png`](./screenshots/04_systemctl_status.png):** Demonstrates active `sshd` daemon status with journald system logs confirming `Accepted publickey for bgdsvc_mahdi`.
+  - **[`screenshots/04_ssh_key_connect.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%204/04_ssh_key_connect.png):** Confirms successful passwordless authentication handshake, followed by shell isolation enforcement (`This account is currently not available.`).
+  - **[`screenshots/04_systemctl_status.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%204/04_systemctl_status.png):** Demonstrates active `sshd` daemon status with journald system logs confirming `Accepted publickey for bgdsvc_mahdi`.
   ```
   
 ---
@@ -357,8 +356,7 @@ Code snippet
     -   **[`screenshots/06_crontab_list.png`](https://github.com/minobel/linux-sysadmin-lab/blob/main/screenshots/Part%206/06_crontab_list.png):** Displays active cron schedule operating under `bgdsvc_mahdi`.
         
     -   **[`screenshots/06_monitor_log.png`](https://github.com/minobel/linux-sysadmin-lab/tree/main/screenshots/Part%206/Log-Monitor):** Confirms cron-driven automated health logs capturing memory, storage, and running process status.
-    ```
-
+  ```
 ---
 ## 🔄 Part 7 — Don't Let the Logs Eat the Disk (Logrotate)
 
